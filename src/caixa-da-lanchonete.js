@@ -10,20 +10,25 @@ class CaixaDaLanchonete {
             combo1: 9.50,
             combo2: 7.50
         };
+        this.itensDaLanchonete = new Set(Object.keys(this.precoDosItens))
+
     } 
     calcularValorDaCompra(metodoDePagamento, itens) {
-        if (!this.validaSeExistemItens(itens)) {
+        if (!this.validaSeExisteItens(itens)) {
             return "Não há itens no carrinho de compra!"
+        }
+        if(!this.validaFormatoDosItens(itens)){
+            return "Item inválido!"
         }
         let novoArrayDeItens = this.transformarArrayDeItens(itens);
 
-        if (!this.validaMetodoDePagamento(metodoDePagamento)) {
-            return "Forma de pagamento inválida!"
-        }
         if (!this.validaItens(novoArrayDeItens)) {
             return "Item inválido!"
         }
-        if (!this.validaQuantidadeDeItens(novoArrayDeItens)) {
+        if (!this.validaMetodoDePagamento(metodoDePagamento)) {
+            return "Forma de pagamento inválida!"
+        }
+        if (!this.validaQuantidadeDosItens(novoArrayDeItens)) {
             return "Quantidade inválida!"
         }
         if (!this.validaSePodeAdicionarItemExtra(novoArrayDeItens)) {
@@ -35,23 +40,34 @@ class CaixaDaLanchonete {
         const precoFinalFormatado = precoFinal.toFixed(2).replaceAll('.', ',')
         return `R$ ${precoFinalFormatado}`
     }
-    validaSeExistemItens(itens) {
-        let existemItens = true;
-        if (!itens.length || !itens) {
-            existemItens = false;
+    validaSeExisteItens(itens) {
+        let existeItens = true;
+        if (!itens.length) {
+            existeItens = false;
         }
-        return existemItens;
+        return existeItens;
+    }
+    validaFormatoDosItens(itens){
+        let formatoValido = true;
+        const pattern = /^[a-zA-Z]+\,\s*\d+$/
+        for(const item of itens){
+            if(!pattern.test(item)){
+                formatoValido = false;
+                break
+            }
+        }
+        return formatoValido;
     }
     transformarArrayDeItens(itens) {
         const novoArrayDeItens = itens.map((item) => {
             const arrayDoItem = item.split(',');
-            return { nome: arrayDoItem[0], quantidade: arrayDoItem[1] };
+            return { nome: arrayDoItem[0], quantidade: Number(arrayDoItem[1]) };
         })
         return novoArrayDeItens;
     }
     validaMetodoDePagamento(metodoPagamento) {
         let valido = false;
-        if (metodoPagamento == 'debito' || metodoPagamento == 'credito' || metodoPagamento == 'dinheiro') {
+        if (metodoPagamento === 'debito' || metodoPagamento === 'credito' || metodoPagamento === 'dinheiro') {
             valido = true;
         }
         return valido
@@ -59,34 +75,8 @@ class CaixaDaLanchonete {
     validaItens(itens) {
         let valido = true;
         for (const item of itens) {
-            switch (item.nome) {
-                case "cafe":
-                    valido = true;
-                    break;
-                case "chantily":
-                    valido = true;
-                    break;
-                case "suco":
-                    valido = true;
-                    break;
-                case "sanduiche":
-                    valido = true;
-                    break;
-                case "queijo":
-                    valido = true;
-                    break;
-                case "salgado":
-                    valido = true;
-                    break;
-                case "combo1":
-                    valido = true;
-                    break;
-                case "combo2":
-                    valido = true;
-                    break;
-                default:
-                    valido = false;
-                    break;
+            if(!this.itensDaLanchonete.has(item.nome)){
+                valido = false
             }
             if (!valido) {
                 break;
@@ -94,10 +84,10 @@ class CaixaDaLanchonete {
         };
         return valido;
     }
-    validaQuantidadeDeItens(itens) {
+    validaQuantidadeDosItens(itens) {
         let valido = true;
         for (const item of itens) {
-            if (item.quantidade == 0) {
+            if (item.quantidade <= 0) {
                 valido = false;
                 break;
             }
@@ -122,31 +112,10 @@ class CaixaDaLanchonete {
     calculaPrecoParcial(itens) {
         let precoParcial = 0;
         itens.forEach(item => {
-            switch (item.nome) {
-                case "cafe":
-                    precoParcial += this.precoDosItens.cafe * item.quantidade;
-                    break;
-                case "chantily":
-                    precoParcial += this.precoDosItens.chantily * item.quantidade;
-                    break;
-                case "suco":
-                    precoParcial += this.precoDosItens.suco * item.quantidade;
-                    break;
-                case "sanduiche":
-                    precoParcial += this.precoDosItens.sanduiche * item.quantidade;
-                    break;
-                case "queijo":
-                    precoParcial += this.precoDosItens.queijo * item.quantidade;
-                    break;
-                case "salgado":
-                    precoParcial += this.precoDosItens.salgado * item.quantidade;
-                    break;
-                case "combo1":
-                    precoParcial += this.precoDosItens.combo1 * item.quantidade;
-                    break;
-                case "combo2":
-                    precoParcial += this.precoDosItens.combo2 * item.quantidade;
-                    break;
+            for(const itemDaLanchonete of this.itensDaLanchonete){
+                if(item.nome == itemDaLanchonete){
+                    precoParcial += this.precoDosItens[itemDaLanchonete] * item.quantidade;
+                }
             }
         });
         return precoParcial;
