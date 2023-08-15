@@ -18,6 +18,11 @@ describe('CaixaDaLanchonete', () => {
             .validaFormatoDosItens(itens);
         expect(resultado).toEqual(resultadoEsperado)
     }
+    const transformarArrayDeItensTeste = (itens, resultadoEsperado) => {
+        const resultado = new CaixaDaLanchonete()
+            .transformarArrayDeItens(itens);
+        expect(resultado).toEqual(resultadoEsperado)
+    }
     const validaMetodoDePagamentoTeste = (formaDePagamento, resultadoEsperado) => {
         const resultado = new CaixaDaLanchonete()
             .validaMetodoDePagamento(formaDePagamento);
@@ -104,8 +109,17 @@ describe('CaixaDaLanchonete', () => {
         [['sanduiche,1', 'queijo,2'], true],
         [['1,suco', 'cafe,2'], false],
         [['chantily', 'suco,2'], false],
+        [['combo1, 2', 'combo2, 1'], true],
         [['', 'combo1,2'], false],
     ])('Ao validar o formato dos itens %p deve resultar em %p', validaFormatoDosItensTeste)
+
+    // Testa o método transformarArrayDeItens
+    test.each([
+        [['suco, 1', 'cafe,2'], "[{ nome: 'suco', quantidade: 1 }, { nome: 'cafe', quantidade: 2 }]", [{ nome: 'suco', quantidade: 1 }, { nome: 'cafe', quantidade: 2 }]],
+        [['sanduiche, 1', 'queijo,2'], "[{ nome: 'cafe', quantidade: 1 }]", [{ nome: 'sanduiche', quantidade: 1 }, { nome: 'queijo', quantidade: 2 }]],
+        [['suco, 1'], "[{ nome: 'cafe', quantidade: 1 }]", [{ nome: 'suco', quantidade: 1 }]],
+        
+    ])('Ao transformar o array de itens igual a %p deve resultar em %p', (itens,_, resultadoEsperado) => transformarArrayDeItensTeste(itens, resultadoEsperado))
 
     // Testa o método validaMetodoDePagamento
     test.each([

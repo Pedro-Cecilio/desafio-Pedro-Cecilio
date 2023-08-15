@@ -49,7 +49,7 @@ class CaixaDaLanchonete {
     }
     validaFormatoDosItens(itens){
         let formatoValido = true;
-        const pattern = /^[a-zA-Z]+\,\s*\d+$/
+        const pattern = /^[a-zA-Z]+\d?\,\s*\d+$/
         for(const item of itens){
             if(!pattern.test(item)){
                 formatoValido = false;
